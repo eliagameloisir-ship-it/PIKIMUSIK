@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Piki Musik</title>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@600;800&family=Outfit:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--b1:#95d8db;--b2:#072b8c;--y:#ffdd33;--iv:#fffbeb;--or:#ff4400;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--b1);color:var(--or);font:300 18px/1.45 "Outfit","Helvetica Neue",Arial,sans-serif;min-height:100vh;overflow-x:hidden}
+main{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:28px 18px 56px}
+.v{position:fixed;z-index:0;pointer-events:none;width:300px}
+.v.tl{top:-120px;left:-120px;color:var(--or)}.v.br{bottom:-130px;right:-130px;color:var(--b2);width:340px}
+h1,h2,.btn,.lbl,.big{font-family:"League Spartan","Arial Black",sans-serif;text-transform:uppercase;font-weight:800;letter-spacing:.01em}
+h1,h2,.big{margin:0 0 10px;line-height:1.05;color:var(--or);text-shadow:2px 0 var(--y),-2px 0 var(--y),0 2px var(--y),0 -2px var(--y),2px 2px var(--y),-2px -2px var(--y),2px -2px var(--y),-2px 2px var(--y)}
+h1{font-size:clamp(1.8rem,5vw,3rem)}h2{font-size:1.5rem}
+.center{text-align:center}
+.card{background:var(--iv);border-radius:28px;padding:26px 30px;margin:16px 0}
+.lbl{display:block;font-size:1.35rem;color:var(--or);margin:10px 0 8px;text-transform:none;font-weight:800}
+input[type=text],textarea{width:100%;border:0;border-radius:999px;background:var(--b1);color:var(--b2);font:inherit;padding:12px 20px}
+textarea{border-radius:20px;min-height:140px}
+input::placeholder,textarea::placeholder{color:var(--b2);opacity:.65}
+input[type=range]{width:100%;accent-color:var(--or)}
+.btn{border:0;border-radius:20px;padding:22px 26px;font-size:1.25rem;cursor:pointer;flex:1;min-width:200px}
+.btn.b{background:var(--b2);color:var(--y)}.btn.o{background:var(--or);color:var(--iv)}.btn.y{background:var(--y);color:var(--or)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,input:focus-visible,textarea:focus-visible,.tile:focus-visible{outline:4px solid var(--b2);outline-offset:3px}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.logo{display:block;margin:0 auto}
+.msg{min-height:1.5em;color:var(--b2);font-weight:400;text-align:center}
+.small{font-size:.9rem;color:var(--b2)}
+.game{display:grid;grid-template-columns:270px 1fr;gap:34px;align-items:start;margin-top:10px}
+.song{background:var(--y);border-radius:34px;padding:26px 24px 22px;text-align:center}
+.cover{background:var(--iv);border-radius:22px;padding:22px}.cover svg{width:100%;display:block;color:var(--b2)}
+.song .big{font-size:1.3rem;text-shadow:none;margin:14px 0 2px}.song p{margin:0 0 12px}
+.play{width:52px;height:52px;border-radius:50%;background:var(--or);margin:0 auto;display:grid;place-items:center}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}
+.tile{background:var(--iv);border:4px solid transparent;border-radius:34px;min-height:150px;color:var(--or);font:300 1.6rem "Outfit",sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px}
+.tiles.many .tile{min-height:92px;font-size:1.25rem;gap:4px;border-radius:26px}
+.tile.sel{background:var(--y);border-color:var(--or)}
+.ic{width:40px;height:40px;border-radius:50%;background:var(--b2);color:var(--iv);display:grid;place-items:center;font-size:1.2rem}
+.tiles.many .ic{width:30px;height:30px;font-size:.95rem}
+.timer{font:800 1.6rem "League Spartan",sans-serif;color:var(--b2)}
+.rank{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:2px solid var(--b1)}
+.rank:last-child{border:0}.pts{font:800 1.4rem "League Spartan",sans-serif;color:var(--b2);white-space:nowrap}
+.load{text-align:center;padding-top:12vh}
+@keyframes leg{from{transform:rotate(-35deg)}to{transform:rotate(35deg)}}
+.spin{animation:spin 2.4s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+@media (max-width:760px){.game{grid-template-columns:1fr;gap:18px}.song{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center;text-align:left;padding:16px}.song .play,.song .logo{display:none}.cover{padding:10px}.tile{min-height:100px;font-size:1.25rem}.card{padding:20px}.v{width:200px}}
+.hint{background:var(--y);color:var(--or);border-radius:16px;padding:10px 16px;font:800 1.15rem "League Spartan",sans-serif;text-align:center;margin:0 0 12px}
+
+.code{display:inline-block;font:800 3rem "League Spartan",sans-serif;letter-spacing:.2em;color:var(--b2);background:var(--iv);border-radius:20px;padding:6px 8px 6px 28px;margin:6px 0 14px}.play{border:0;cursor:pointer}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<img class="v tl" src="assets/disque-orange.png" alt="" aria-hidden="true"><img class="v br" src="assets/disque-bleu.png" alt="" aria-hidden="true">
+<main id="app"></main>
+<script>
+const cfg=window.PIKI_CONFIG||{},app=document.getElementById('app');
+const $=h=>{app.innerHTML=h};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+const MID=["Presque un sniper","Oreille correcte","Joue au hasard","Perdu dans la playlist"];
+const HEAD="margin:0;font:800 1.2rem 'League Spartan',sans-serif;color:var(--b2);text-transform:uppercase";
+let me={id:Math.random().toString(36).slice(2,9),name:''},host=false,ch=null,sb=null,st=null,lists={},buf={},votes={},G=null,tick=null,sT=null,draft='',myR=-1,audio=null,audioR=-1;
+function parse(raw){const seen=new Set(),out=[];raw.split(/\r?\n/).forEach(l=>{l=l.trim().replace(/^"|"$/g,'');if(!l)return;const m=l.split(/\s+[-–—]\s+|\s*;\s*|\t/),t=m[0].trim(),a=(m[1]||'').trim(),k=norm(t+'|'+a);if(t&&!seen.has(k)){seen.add(k);out.push({title:t,artist:a,key:k})}});return out}
+function fromCSV(t){t=t.replace(/^\uFEFF/,'');const l=t.split(/\r?\n/)[0]||'',d=(l.match(/;/g)||[]).length>(l.match(/,/g)||[]).length?';':',',rows=[];let r=[],c='',q=false;
+ for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==d){r.push(c);c=''}else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;r.push(c);rows.push(r);r=[];c=''}else c+=ch}
+ if(c||r.length){r.push(c);rows.push(r)}
+ if(!rows.length)return[];const h=rows[0].map(norm);let ti=h.findIndex(x=>/track name|titre|title|^name$|^track$|^nom/.test(x)),ai=h.findIndex(x=>/artist/.test(x)),body=rows;
+ if(ti>=0)body=rows.slice(1);else{ti=0;ai=1}
+ return body.map(x=>((x[ti]||'').trim()+(x[ai]?' - '+x[ai].replace(/;/g,',').trim():''))).filter(s=>s.trim())}
+async function imp(f){if(!f)return;const ext=f.name.split('.').pop().toLowerCase();fm.textContent='';
+ try{let lines;
+  if(ext==='csv')lines=fromCSV(await f.text());
+  else if(ext==='docx'){if(typeof JSZip==='undefined')throw'Lecture Word indisponible : utilise un fichier CSV.';const z=await JSZip.loadAsync(await f.arrayBuffer()),x=await z.file('word/document.xml').async('string');
+   lines=x.split('</w:p>').map(p=>p.replace(/<w:tab\/>/g,' ').replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&').trim()).filter(Boolean)}
+  else throw'Format non pris en charge : choisis un fichier .csv ou .docx.';
+  ta.value=lines.join('\n');cnt2();fm.textContent='Fichier importé : '+f.name}
+ catch(e){fm.textContent=typeof e==='string'?e:'Impossible de lire ce fichier.'}
+ fl.value=''}
+function cnt2(){const n=parse(ta.value).length;draft=ta.value;cnt.textContent=n+' chanson'+(n>1?'s':'')+' reconnue'+(n>1?'s':'');sl.disabled=n<1}
+const send=p=>ch&&ch.send({type:'broadcast',event:'m',payload:p});
+const pub=()=>{send({t:'st',s:st});render()};
+const nm=id=>esc((st.players.find(p=>p.id===id)||{}).name||'?');
+function stopAudio(){if(audio){audio.pause();audio=null}audioR=-1}
+function leave(){stopAudio();clearInterval(tick);if(ch&&sb)sb.removeChannel(ch);ch=null;st=null;host=false;lists={};buf={};votes={};draft='';myR=-1}
+
+function home(m){leave();
+ $(`<div class="center" style="margin-top:4vh"><h2 style="font-size:1.8rem">Bienvenue sur</h2><img class="logo" src="assets/logo-2-jaune.png" alt="Piki Musik" width="300"></div>
+ <div class="card" style="margin-top:28px"><label class="lbl" for="ps">Ton pseudo d’audiophile</label><input type="text" id="ps" maxlength="14" placeholder="Ex : Elvis Presley, Madonna…" value="${esc(me.name)}">
+ <label class="lbl" for="cd">Code du lobby (pour rejoindre)</label><input type="text" id="cd" maxlength="5" placeholder="Ex : K7PQ2" style="text-transform:uppercase"></div>
+ <div class="row"><button class="btn b" onclick="enter(false)">Rejoindre un lobby</button><button class="btn o" onclick="enter(true)">Créer un lobby</button></div><p class="msg" id="msg">${esc(m||'')}</p>`)}
+function enter(create){const n=ps.value.trim(),c=cd.value.trim().toUpperCase();
+ if(!n)return msg.textContent='Choisis un pseudo pour commencer.';
+ if(!create&&c.length<4)return msg.textContent='Entre le code du lobby pour le rejoindre.';
+ if(!window.supabase||!cfg.url||/COLLE/.test(cfg.url))return msg.textContent='Le site n’est pas encore relié à Supabase (voir config.js).';
+ me.name=n;sb=sb||supabase.createClient(cfg.url,cfg.key);
+ connect(create?Array.from({length:5},()=>'ABCDEFGHJKMNPQRSTUVWXYZ'[Math.random()*23|0]).join(''):c,create)}
+function connect(c,h){host=h;
+ ch=sb.channel('piki-'+c,{config:{broadcast:{self:false},presence:{key:me.id}}});
+ ch.on('broadcast',{event:'m'},({payload})=>onMsg(payload))
+  .on('presence',{event:'leave'},({key})=>{if(host){if(st&&st.phase==='lobby'&&key!==me.id){st.players=st.players.filter(p=>p.id!==key);delete lists[key];pub()}}else if(st&&key===st.hostId)home('L’hôte a quitté la partie.')})
+  .subscribe(s=>{if(s!=='SUBSCRIBED')return;ch.track({id:me.id});
+   if(host){st={code:c,hostId:me.id,phase:'lobby',players:[{id:me.id,name:me.name,n:0}],rounds:5,timer:30};render()}
+   else{send({t:'join',id:me.id,name:me.name});setTimeout(()=>{if(!st&&ch)home('Lobby introuvable : vérifie le code.')},5000)}})}
+
+function onMsg(m){
+ if(host){
+  if(m.t==='join'){const p=st.players;if(p.some(x=>x.id===m.id))return pub();
+   if(st.phase!=='lobby')return send({t:'no',id:m.id,why:'La partie a déjà commencé.'});
+   if(p.length>=6)return send({t:'no',id:m.id,why:'Ce lobby est complet (6 joueurs max).'});
+   if(p.some(x=>norm(x.name)===norm(m.name)))return send({t:'no',id:m.id,why:'Ce pseudo est déjà pris dans ce lobby.'});
+   p.push({id:m.id,name:m.name,n:0});pub()}
+  else if(m.t==='songs'){if(m.i===0)buf[m.id]=[];const b=buf[m.id]=buf[m.id]||[];b[m.i]=m.l;
+   if(b.filter(Boolean).length===m.n){lists[m.id]=[].concat(...b).map(([t,a])=>({title:t,artist:a,key:norm(t+'|'+a)}));delete buf[m.id];const p=st.players.find(x=>x.id===m.id);if(p){p.n=lists[m.id].length;pub()}}}
+  else if(m.t==='vote'&&st.phase==='round'&&m.r===st.r.n){votes[m.id]=m.picks;st.r.voted=Object.keys(votes);
+   if(st.players.every(p=>votes[p.id]))reveal();else{send({t:'st',s:st});upd()}}
+ }else{
+  if(m.t==='st'){const o=st;st=m.s;if(o&&o.phase==='final'&&st.phase==='lobby')draft='';
+   if(!o||o.phase!==st.phase||st.phase==='lobby'||(st.r&&(!o.r||o.r.n!==st.r.n)))render();else upd()}
+  else if(m.t==='no'&&m.id===me.id)home(m.why)}}
+
+function render(){if(!st)return;if(st.phase!=='round')stopAudio();
+ ({lobby,loading,round:draw,reveal:showReveal,final}[st.phase])()}
+function lobby(){const ps=st.players,ok=ps.length>=2&&ps.every(p=>p.n>0);
+ $(`<div class="center"><h1>Lobby</h1><p class="small">Partage ce code à tes amis</p><div class="code" aria-label="Code du lobby">${st.code}</div></div>
+ <div class="card"><span class="lbl">Joueurs (${ps.length}/6)</span>${ps.map(p=>`<div class="rank"><span>${esc(p.name)}${p.id===st.hostId?' 👑':''}</span><span class="small">${p.n?'✓ '+p.n+' chansons':'liste en attente'}</span></div>`).join('')}</div>
+ <div class="card"><span class="lbl">Tes chansons (Titre - Artiste, une par ligne)</span><textarea id="ta" aria-label="Liste de chansons" placeholder="Get Lucky - Daft Punk">${esc(draft)}</textarea><p class="small" id="cnt"></p>
+ <div class="row"><button class="btn y" style="padding:12px;flex:none;min-width:0" onclick="fl.click()">Importer un fichier (.csv, .docx)</button><button class="btn o" id="sl" style="padding:12px;flex:none;min-width:0" onclick="sendList()" disabled>Envoyer ma liste</button><input type="file" id="fl" accept=".csv,.docx" hidden onchange="imp(this.files[0])"></div><p class="small" id="fm" role="status"></p></div>
+ ${host?`<div class="card"><label class="lbl" for="r">Manches : <span id="rv">${st.rounds}</span></label><input id="r" type="range" min="3" max="10" value="${st.rounds}" oninput="rv.textContent=this.value;setO('rounds',+this.value)">
+ <label class="lbl" for="t">Chrono par manche : <span id="tv">${fmt(st.timer)}</span></label><input id="t" type="range" min="15" max="120" step="15" value="${st.timer}" oninput="tv.textContent=fmt(+this.value);setO('timer',+this.value)"></div>
+ <button class="btn o" style="width:100%" ${ok?'':'disabled'} onclick="begin()">Lancer la partie</button><p class="small center">${ok?'':'Il faut au moins 2 joueurs, chacun avec sa liste envoyée.'}</p>`:'<p class="center small">En attente du lancement par l’hôte…</p>'}`);
+ ta.oninput=cnt2;cnt2()}
+function setO(k,v){st[k]=v;clearTimeout(sT);sT=setTimeout(()=>send({t:'st',s:st}),300)}
+function sendList(){let s=parse(ta.value),note='';if(s.length>3000){s=shuf(s).slice(0,3000);note=' (3 000 max : tirées au hasard)'}
+ const l=s.map(x=>[x.title,x.artist]);
+ if(host){lists[me.id]=s;st.players.find(p=>p.id===me.id).n=s.length;pub()}
+ else{const k=250,n=Math.max(1,Math.ceil(l.length/k));for(let i=0;i<n;i++)send({t:'songs',id:me.id,i,n,l:l.slice(i*k,(i+1)*k)})}
+ fm.textContent='Liste envoyée : '+s.length+' chansons'+note}
+
+function loading(){$(`<div class="load"><img class="spin" src="assets/disque-bleu.png" alt="" width="120" height="120" style="display:block;margin:0 auto 22px"><img class="logo" src="assets/logo.png" alt="Piki Musik" width="280"><div class="big" style="font-size:clamp(2.2rem,8vw,4rem);margin-top:14px">Chargement</div><p>On fouille dans les vinyles de papi…</p></div>`)}
+function begin(){const pool=new Map();
+ st.players.forEach(p=>(lists[p.id]||[]).forEach(s=>{if(!pool.has(s.key))pool.set(s.key,{...s,owners:new Set()});pool.get(s.key).owners.add(p.id)}));
+ const all=shuf([...pool.values()]);G={songs:all.slice(0,Math.min(st.rounds,all.length)),i:0,scores:Object.fromEntries(st.players.map(p=>[p.id,0]))};
+ st.phase='loading';pub();setTimeout(next,3000)}
+async function next(){const s=G.songs[G.i];votes={};let url=null;
+ for(const q of [`artist:"${s.artist}" track:"${s.title}"`,s.title+' '+s.artist]){if(url)break;try{url=(await(await fetch('/api/preview?q='+encodeURIComponent(q))).json()).url}catch(e){}}
+ st.phase='round';st.r={n:G.i,total:G.songs.length,title:s.title,artist:s.artist,preview:url,solo:s.owners.size===1,voted:[],intro:5,left:st.timer};pub();
+ clearInterval(tick);tick=setInterval(()=>{const r=st.r;if(!r)return;if(r.intro>0)r.intro--;else if(--r.left<=0)return reveal();send({t:'st',s:st});upd()},1000)}
+function draw(){const r=st.r,n=st.players.length,sent=myR===r.n;
+ $(`<div class="game"><div><div class="song"><div class="cover"><img src="assets/disque-bleu.png" alt="" style="width:100%;display:block"></div>
+ <div class="big">${esc(r.title)}</div><p>${esc(r.artist)}</p>${r.preview?'':'<p class="small">Pas d’extrait trouvé pour cette chanson</p>'}
+ <button class="play" onclick="togg()" aria-label="Lecture / pause"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M7 4l14 8-14 8z" fill="#fffbeb"/></svg></button></div>
+ <img class="logo" src="assets/logo-2-bleu.png" alt="Piki Musik" width="130" style="margin-top:16px"></div>
+ <div><p class="center" style="${HEAD}">Manche ${r.n+1}/${r.total}</p><h1 class="center" style="margin-top:10px">De qui provient<br>ce titre ?</h1>
+ <p class="hint">${r.solo?'Un seul DJ adore cette chanson':'C’est un hit, plusieurs joueurs ont liké ce banger'}</p>
+ <div class="row" style="justify-content:space-between"><span class="lbl" style="margin:0" id="vc"></span><span class="timer" id="tm"></span></div>
+ ${sent?'<div class="card center"><b>Vote envoyé ✓</b><p>En attente des autres joueurs…</p></div>':`<div class="tiles ${n>4?'many':''}">${st.players.map(p=>`<button class="tile" aria-pressed="false" data-i="${p.id}" onclick="tg(this,${r.solo})"><span class="ic">♫</span>${esc(p.name)}</button>`).join('')}</div><button class="btn b" style="width:100%" onclick="submit()">Valider mon vote</button>`}</div></div>`);
+ upd();if(audioR!==r.n){audioR=r.n;if(r.preview){audio=new Audio(r.preview);audio.loop=true;audio.play().catch(()=>{})}}}
+function upd(){const r=st.r;if(!r||!document.getElementById('tm'))return;tm.textContent=r.intro>0?'Écoute… '+r.intro+'s':fmt(r.left);vc.textContent=r.voted.length+'/'+st.players.length+' ont voté'}
+function togg(){if(audio)audio.paused?audio.play():audio.pause()}
+function tg(b,solo){const on=!b.classList.contains('sel');if(solo)document.querySelectorAll('.tile.sel').forEach(x=>{x.classList.remove('sel');x.setAttribute('aria-pressed','false')});b.classList.toggle('sel',on);b.setAttribute('aria-pressed',on)}
+function submit(){const picks=[...document.querySelectorAll('.tile.sel')].map(x=>x.dataset.i);myR=st.r.n;
+ if(host)onMsg({t:'vote',id:me.id,r:st.r.n,picks});else send({t:'vote',id:me.id,r:st.r.n,picks});if(st.phase==='round')draw()}
+function reveal(){clearInterval(tick);const s=G.songs[G.i],ow=[...s.owners];
+ const rows=st.players.map(p=>{const v=votes[p.id];if(!v)return{id:p.id,pts:0,none:1};const good=v.filter(x=>s.owners.has(x)).length,bad=v.length-good,miss=ow.length-good,raw=2*good-bad-miss,pts=Math.max(0,raw);G.scores[p.id]+=pts;return{id:p.id,pts,v,err:bad+miss,raw}});
+ st.phase='reveal';st.r=null;st.rv={n:G.i,total:G.songs.length,title:s.title,artist:s.artist,owners:ow,rows,last:G.i>=G.songs.length-1};pub()}
+function showReveal(){const v=st.rv,names=a=>a.map(nm).join(', ');
+ $(`<p class="center" style="${HEAD}">Manche ${v.n+1}/${v.total}</p>
+ <div class="card center"><div class="big" style="font-size:2rem;text-shadow:none">${esc(v.title)}</div><p style="margin:0 0 10px">${esc(v.artist)}</p><span class="lbl">${v.owners.length===1?'Likée par':'Likée par '+v.owners.length+' joueurs'}</span><div style="color:var(--b2);font-weight:400;font-size:1.3rem">${names(v.owners)}</div></div>
+ <div class="card"><h2 style="text-shadow:none">Points de la manche</h2>${v.rows.map(r=>`<div class="rank"><span>${nm(r.id)}<br><span class="small">${r.none?'Pas de vote (temps écoulé)':r.v.length?'Désigné : '+names(r.v)+(r.err?' · '+r.err+' erreur'+(r.err>1?'s':'')+(r.raw<0?' (ramené à 0)':''):''):'N’a désigné personne'}</span></span><span class="pts">+${r.pts}</span></div>`).join('')}</div>
+ ${host?`<button class="btn o" style="width:100%" onclick="${v.last?'fin()':'G.i++;next()'}">${v.last?'Voir le classement':'Manche suivante'}</button>`:'<p class="center small">En attente de l’hôte…</p>'}`)}
+function fin(){st.phase='final';st.fin=st.players.map(p=>({n:p.name,s:G.scores[p.id]})).sort((a,b)=>b.s-a.s);pub()}
+function final(){const o=st.fin,mx=o[0].s,mn=o[o.length-1].s,cap=(x,i)=>x.s===mx?'Maître du jukebox':x.s===mn?'Come As You Are (I guess)':MID[Math.min(i-1,MID.length-1)];
+ $(`<h1 class="center">Classement</h1><div class="card">${o.map((x,i)=>`<div class="rank"><span><b>${i+1}.</b> ${esc(x.n)}<br><span class="small">${cap(x,i)}</span></span><span class="pts">${x.s} pt${x.s>1?'s':''}</span></div>`).join('')}</div>
+ <p class="small center">Les listes sont effacées à la fin de la partie.</p>${host?'<button class="btn o" style="width:100%" onclick="again()">Nouvelle partie dans le même lobby</button>':'<p class="center small">En attente de l’hôte…</p>'}`)}
+function again(){lists={};st.players.forEach(p=>p.n=0);st.phase='lobby';st.fin=st.rv=st.r=null;pub()}
+home();
+</script>
+</body>
+</html>
