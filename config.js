@@ -1,5 +1,5 @@
 // Colle ici les deux valeurs de ton projet Supabase (Project Settings > API)
 window.PIKI_CONFIG={
-  url:"COLLE_ICI_L_URL_DU_PROJET",
-  key:"COLLE_ICI_LA_CLE_ANON_PUBLIQUE"
+  url:"https://dsjahehghcoushztowhv.supabase.co",
+  key:"sb_publishable_ZmF4JPfe0mbMdPhygtVyeA_Z5RD-j_L"
 };
