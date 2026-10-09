@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Piki Musik</title>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@600;800&family=Outfit:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--b1:#95d8db;--b2:#072b8c;--y:#ffdd33;--iv:#fffbeb;--or:#ff4400;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--b1);color:var(--or);font:300 18px/1.45 "Outfit","Helvetica Neue",Arial,sans-serif;min-height:100vh;overflow-x:hidden}
+main{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:28px 18px 56px}
+.v{position:fixed;z-index:0;pointer-events:none;width:300px}
+.v.tl{top:-120px;left:-120px;color:var(--or)}.v.br{bottom:-130px;right:-130px;color:var(--b2);width:340px}
+h1,h2,.btn,.lbl,.big{font-family:"League Spartan","Arial Black",sans-serif;text-transform:uppercase;font-weight:800;letter-spacing:.01em}
+h1,h2,.big{margin:0 0 10px;line-height:1.05;color:var(--or);text-shadow:2px 0 var(--y),-2px 0 var(--y),0 2px var(--y),0 -2px var(--y),2px 2px var(--y),-2px -2px var(--y),2px -2px var(--y),-2px 2px var(--y)}
+h1{font-size:clamp(1.8rem,5vw,3rem)}h2{font-size:1.5rem}
+.center{text-align:center}
+.card{background:var(--iv);border-radius:28px;padding:26px 30px;margin:16px 0}
+.lbl{display:block;font-size:1.35rem;color:var(--or);margin:10px 0 8px;text-transform:none;font-weight:800}
+input[type=text],textarea{width:100%;border:0;border-radius:999px;background:var(--b1);color:var(--b2);font:inherit;padding:12px 20px}
+textarea{border-radius:20px;min-height:140px}
+input::placeholder,textarea::placeholder{color:var(--b2);opacity:.65}
+input[type=range]{width:100%;accent-color:var(--or)}
+.btn{border:0;border-radius:20px;padding:22px 26px;font-size:1.25rem;cursor:pointer;flex:1;min-width:200px}
+.btn.b{background:var(--b2);color:var(--y)}.btn.o{background:var(--or);color:var(--iv)}.btn.y{background:var(--y);color:var(--or)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,input:focus-visible,textarea:focus-visible,.tile:focus-visible{outline:4px solid var(--b2);outline-offset:3px}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.logo{display:block;margin:0 auto}
+.msg{min-height:1.5em;color:var(--b2);font-weight:400;text-align:center}
+.small{font-size:.9rem;color:var(--b2)}
+.game{display:grid;grid-template-columns:270px 1fr;gap:34px;align-items:start;margin-top:10px}
+.song{background:var(--y);border-radius:34px;padding:26px 24px 22px;text-align:center}
+.cover{background:var(--iv);border-radius:22px;padding:22px}.cover svg{width:100%;display:block;color:var(--b2)}
+.song .big{font-size:1.3rem;text-shadow:none;margin:14px 0 2px}.song p{margin:0 0 12px}
+.play{width:52px;height:52px;border-radius:50%;background:var(--or);margin:0 auto;display:grid;place-items:center}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}
+.tile{background:var(--iv);border:4px solid transparent;border-radius:34px;min-height:150px;color:var(--or);font:300 1.6rem "Outfit",sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px}
+.tiles.many .tile{min-height:92px;font-size:1.25rem;gap:4px;border-radius:26px}
+.tile.sel{background:var(--y);border-color:var(--or)}
+.ic{width:40px;height:40px;border-radius:50%;background:var(--b2);color:var(--iv);display:grid;place-items:center;font-size:1.2rem}
+.tiles.many .ic{width:30px;height:30px;font-size:.95rem}
+.timer{font:800 1.6rem "League Spartan",sans-serif;color:var(--b2)}
+.rank{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:2px solid var(--b1)}
+.rank:last-child{border:0}.pts{font:800 1.4rem "League Spartan",sans-serif;color:var(--b2);white-space:nowrap}
+.load{text-align:center;padding-top:12vh}
+@keyframes leg{from{transform:rotate(-35deg)}to{transform:rotate(35deg)}}
+.spin{animation:spin 2.4s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+@media (max-width:760px){.game{grid-template-columns:1fr;gap:18px}.song{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center;text-align:left;padding:16px}.song .play,.song .logo{display:none}.cover{padding:10px}.tile{min-height:100px;font-size:1.25rem}.card{padding:20px}.v{width:200px}}
+.hint{background:var(--y);color:var(--or);border-radius:16px;padding:10px 16px;font:800 1.15rem "League Spartan",sans-serif;text-align:center;margin:0 0 12px}
+
+.code{display:inline-block;font:800 3rem "League Spartan",sans-serif;letter-spacing:.2em;color:var(--b2);background:var(--iv);border-radius:20px;padding:6px 8px 6px 28px;margin:6px 0 14px}.play{border:0;cursor:pointer}a{color:var(--b2)}
+.heart{background:transparent;border:0;padding:6px;border-radius:50%;cursor:pointer;line-height:0;color:var(--b2);margin:2px auto 8px}
+.heart svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linejoin:round}.heart.on svg{fill:currentColor}
+.heart:focus-visible{outline:4px solid var(--or);outline-offset:2px}
+.opt{display:flex;gap:12px;align-items:center;cursor:pointer;margin-top:16px}.opt input{width:24px;height:24px;accent-color:var(--or);flex:none}
+.recap ul{margin:0 0 6px;padding-left:20px}
+@media (max-width:760px){.song>.cover{grid-row:1 / span 5}.song>:not(.cover){grid-column:2}.song .heart{justify-self:start;margin:0}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<img class="v tl" src="assets/disque-orange.png" alt="" aria-hidden="true"><img class="v br" src="assets/disque-bleu.png" alt="" aria-hidden="true">
+<main id="app"></main>
+<script>
+const cfg=window.PIKI_CONFIG||{},app=document.getElementById('app');
+const $=h=>{app.innerHTML=h};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+const mk=()=>Array.from({length:5},()=>'ABCDEFGHJKMNPQRSTUVWXYZ'[Math.random()*23|0]).join('');
+const MID=["Presque un sniper","Oreille correcte","Joue au hasard","Perdu dans la playlist"];
+const HEAD="margin:0;font:800 1.2rem 'League Spartan',sans-serif;color:var(--b2);text-transform:uppercase";
+let me={id:Math.random().toString(36).slice(2,9),name:''},host=false,ch=null,sb=null,st=null,lists={},buf={},votes={},G=null,tick=null,sT=null,draft='',myR=-1,audio=null,audioR=-1,mySel=[],selR=-1,seq=0,lastQ=0,likes={},likedR=new Set(),tDraw=0,vt={};
+function parse(raw){const seen=new Set(),out=[];raw.split(/\r?\n/).forEach(l=>{l=l.trim().replace(/^"|"$/g,'');if(!l)return;const m=l.split(/\s+[-–—]\s+|\s*;\s*|\t/),t=m[0].trim(),a=(m[1]||'').trim(),k=norm(t+'|'+a);if(t&&!seen.has(k)){seen.add(k);out.push({title:t,artist:a,key:k})}});return out}
+function fromCSV(t){t=t.replace(/^\uFEFF/,'');const l=t.split(/\r?\n/)[0]||'',d=(l.match(/;/g)||[]).length>(l.match(/,/g)||[]).length?';':',',rows=[];let r=[],c='',q=false;
+ for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==d){r.push(c);c=''}else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;r.push(c);rows.push(r);r=[];c=''}else c+=ch}
+ if(c||r.length){r.push(c);rows.push(r)}
+ if(!rows.length)return[];const h=rows[0].map(norm);let ti=h.findIndex(x=>/track name|titre|title|^name$|^track$|^nom/.test(x)),ai=h.findIndex(x=>/artist/.test(x)),body=rows;
+ if(ti>=0)body=rows.slice(1);else{ti=0;ai=1}
+ return body.map(x=>((x[ti]||'').trim()+(x[ai]?' - '+x[ai].replace(/;/g,',').trim():''))).filter(s=>s.trim())}
+async function imp(f){if(!f)return;const ext=f.name.split('.').pop().toLowerCase();fm.textContent='';
+ try{let lines;
+  if(ext==='csv')lines=fromCSV(await f.text());
+  else if(ext==='docx'){if(typeof JSZip==='undefined')throw'Lecture Word indisponible : utilise un fichier CSV.';const z=await JSZip.loadAsync(await f.arrayBuffer()),x=await z.file('word/document.xml').async('string');
+   lines=x.split('</w:p>').map(p=>p.replace(/<w:tab\/>/g,' ').replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&').trim()).filter(Boolean)}
+  else throw'Format non pris en charge : choisis un fichier .csv ou .docx.';
+  ta.value=lines.join('\n');cnt2();fm.textContent='Fichier importé : '+f.name}
+ catch(e){fm.textContent=typeof e==='string'?e:'Impossible de lire ce fichier.'}
+ fl.value=''}
+function cnt2(){const n=parse(ta.value).length;draft=ta.value;cnt.textContent=n+' chanson'+(n>1?'s':'')+' reconnue'+(n>1?'s':'');sl.disabled=n<1}
+const send=p=>{if(p.t==='st')p.q=++seq;return ch&&ch.send({type:'broadcast',event:'m',payload:p})};
+const pub=()=>{send({t:'st',s:st});render()};
+const nm=id=>esc((st.players.find(p=>p.id===id)||{}).name||'?');
+function stopAudio(){if(audio){audio.pause();audio=null}audioR=-1}
+function leave(){stopAudio();clearInterval(tick);if(ch&&sb)sb.removeChannel(ch);ch=null;st=null;host=false;lists={};buf={};votes={};draft='';myR=-1;seq=0;lastQ=0;mySel=[];selR=-1;likes={};likedR=new Set();vt={}}
+
+function home(m){leave();
+ $(`<div class="center" style="margin-top:4vh"><h2 style="font-size:1.8rem">Bienvenue sur</h2><img class="logo" src="assets/logo-2-jaune.png" alt="Piki Musik" width="300"><p style="margin:14px auto 0;max-width:520px;color:var(--b2);font-weight:400">Chaque joueur envoie ses titres likés. À chaque manche, une chanson mystère est tirée au sort : devine à qui elle appartient !</p></div>
+ <div class="card" style="margin-top:28px"><label class="lbl" for="ps">Ton pseudo d’audiophile</label><input type="text" id="ps" maxlength="14" placeholder="Ex : Elvis Presley, Madonna…" value="${esc(me.name)}">
+ <label class="lbl" for="cd">Code du lobby (pour rejoindre)</label><input type="text" id="cd" maxlength="5" placeholder="Ex : K7PQ2" style="text-transform:uppercase"></div>
+ <div class="row"><button class="btn b" onclick="enter(false)">Rejoindre un lobby</button><button class="btn o" onclick="enter(true)">Créer un lobby</button></div><p class="msg" id="msg">${esc(m||'')}</p>
+ <div class="card"><span class="lbl" style="text-transform:uppercase">Ou faire un export CSV</span><p class="small" style="margin:0">Pas de fichier de chansons ? Exporte tes titres likés depuis ta plateforme de streaming avec <a href="https://www.tunemymusic.com/" target="_blank" rel="noopener noreferrer">TuneMyMusic</a>, puis importe le CSV dans le lobby.</p></div>`)}
+function enter(create){const n=ps.value.trim(),c=cd.value.trim().toUpperCase();
+ if(!n)return msg.textContent='Choisis un pseudo pour commencer.';
+ if(!create&&c.length<4)return msg.textContent='Entre le code du lobby pour le rejoindre.';
+ if(!window.supabase||!cfg.url||/COLLE/.test(cfg.url))return msg.textContent='Le site n’est pas encore relié à Supabase (voir config.js).';
+ me.name=n;sb=sb||supabase.createClient(cfg.url,cfg.key);
+ connect(create?mk():c,create)}
+function connect(c,h,cb){host=h;const x=sb.channel('piki-'+c,{config:{broadcast:{self:false},presence:{key:me.id}}});ch=x;
+ x.on('broadcast',{event:'m'},({payload})=>{if(ch===x)onMsg(payload)})
+  .on('presence',{event:'leave'},({key})=>{if(ch!==x)return;if(host){if(st&&st.phase==='lobby'&&key!==me.id){st.players=st.players.filter(p=>p.id!==key);delete lists[key];pub()}}else if(st&&st.phase!=='final'&&key===st.hostId)home('L’hôte a quitté la partie.')})
+  .subscribe(q=>{if(q!=='SUBSCRIBED'||ch!==x)return;x.track({id:me.id});
+   if(host){st={code:c,hostId:me.id,phase:'lobby',players:[{id:me.id,name:me.name,n:0}],rounds:5,timer:30,hard:false};render();if(cb)cb()}
+   else{send({t:'join',id:me.id,name:me.name});setTimeout(()=>{if(!st&&ch===x)home('Lobby introuvable : vérifie le code.')},5000)}})}
+
+function onMsg(m){
+ if(m.t==='nl'){if(st&&st.phase==='final'&&m.by!==me.id){const c=m.code;leave();connect(c,false)}return}
+ if(host){
+  if(m.t==='join'){const p=st.players;if(p.some(x=>x.id===m.id))return pub();
+   if(st.phase!=='lobby')return send({t:'no',id:m.id,why:'La partie a déjà commencé.'});
+   if(p.length>=6)return send({t:'no',id:m.id,why:'Ce lobby est complet (6 joueurs max).'});
+   if(p.some(x=>norm(x.name)===norm(m.name)))return send({t:'no',id:m.id,why:'Ce pseudo est déjà pris dans ce lobby.'});
+   p.push({id:m.id,name:m.name,n:0});pub()}
+  else if(m.t==='songs'){if(m.i===0)buf[m.id]=[];const b=buf[m.id]=buf[m.id]||[];b[m.i]=m.l;
+   if(b.filter(Boolean).length===m.n){lists[m.id]=[].concat(...b).map(([t,a])=>({title:t,artist:a,key:norm(t+'|'+a)}));delete buf[m.id];const p=st.players.find(x=>x.id===m.id);if(p){p.n=lists[m.id].length;pub()}}}
+  else if(m.t==='like'){if(st.players.some(x=>x.id===m.id)&&Number.isInteger(m.n))setLike(m.id,m.n,!!m.on)}
+  else if(m.t==='vote'&&st.phase==='round'&&m.r===st.r.n){votes[m.id]=m.picks;vt[m.id]=Number.isFinite(+m.ms)?+m.ms:99999;st.r.voted=Object.keys(votes);
+   if(st.players.every(p=>votes[p.id]))reveal();else{send({t:'st',s:st});upd()}}
+ }else{
+  if(m.t==='st'){if(m.q&&m.q<=lastQ)return;lastQ=m.q||lastQ;const o=st;st=m.s;if(o&&o.phase==='final'&&st.phase==='lobby'){draft='';likedR=new Set()}
+   if(!o||o.phase!==st.phase||st.phase==='lobby'||(st.r&&(!o.r||o.r.n!==st.r.n)))render();else upd()}
+  else if(m.t==='no'&&m.id===me.id)home(m.why)}}
+
+function render(){if(!st)return;if(st.phase!=='round')stopAudio();
+ ({lobby,loading,round:draw,reveal:showReveal,final}[st.phase])()}
+function lobby(){const ps=st.players,ok=ps.length>=2&&ps.every(p=>p.n>0);
+ $(`<div class="center"><h1>Lobby</h1><p class="small">Partage ce code à tes amis</p><div class="code" aria-label="Code du lobby">${st.code}</div></div>
+ <div class="card"><span class="lbl">Joueurs (${ps.length}/6)</span>${ps.map(p=>`<div class="rank"><span>${esc(p.name)}${p.id===st.hostId?' 👑':''}</span><span class="small">${p.n?'✓ '+p.n+' chansons':'liste en attente'}</span></div>`).join('')}${ps.every(p=>p.n)?`<p class="small" style="margin:10px 0 0">Chacun jouera avec le même nombre de chansons : ${Math.min(...ps.map(p=>p.n))} par joueur.</p>`:''}</div>
+ <div class="card"><span class="lbl">Tes chansons (Titre - Artiste, une par ligne)</span><textarea id="ta" aria-label="Liste de chansons" placeholder="Get Lucky - Daft Punk">${esc(draft)}</textarea><p class="small" id="cnt"></p>
+ <div class="row"><button class="btn y" style="padding:12px;flex:none;min-width:0" onclick="fl.click()">Importer un fichier (.csv, .docx)</button><button class="btn o" id="sl" style="padding:12px;flex:none;min-width:0" onclick="sendList()" disabled>Envoyer ma liste</button><input type="file" id="fl" accept=".csv,.docx" hidden onchange="imp(this.files[0])"></div><p class="small">Pas de fichier ? Exporte tes titres en CSV avec <a href="https://www.tunemymusic.com/" target="_blank" rel="noopener noreferrer">TuneMyMusic</a>.</p><p class="small" id="fm" role="status"></p></div>
+ ${host?`<div class="card"><label class="lbl" for="r">Manches : <span id="rv">${st.rounds}</span></label><input id="r" type="range" min="3" max="20" value="${st.rounds}" oninput="rv.textContent=this.value;setO('rounds',+this.value)">
+ <label class="lbl" for="t">Chrono par manche : <span id="tv">${fmt(st.timer)}</span></label><input id="t" type="range" min="15" max="120" step="15" value="${st.timer}" oninput="tv.textContent=fmt(+this.value);setO('timer',+this.value)">
+ <label class="opt"><input type="checkbox" id="hd" ${st.hard?'checked':''} onchange="setO('hard',this.checked)"><span class="lbl" style="margin:0">Mode difficile : aucune indication</span></label>
+ <p class="small" style="margin:6px 0 0">Sans indication, on ne sait pas si la chanson a un ou plusieurs propriétaires : plusieurs choix sont toujours possibles et chaque mauvais choix coûte 1 point.</p></div>
+ <button class="btn o" style="width:100%" ${ok?'':'disabled'} onclick="begin()">Lancer la partie</button><p class="small center">${ok?'':'Il faut au moins 2 joueurs, chacun avec sa liste envoyée.'}</p>`:`${st.hard?'<p class="center small"><b>Mode difficile activé</b> : aucune indication pendant les manches.</p>':''}<p class="center small">En attente du lancement par l’hôte…</p>`}`);
+ ta.oninput=cnt2;cnt2()}
+function setO(k,v){st[k]=v;clearTimeout(sT);sT=setTimeout(()=>send({t:'st',s:st}),300)}
+async function sendList(){let s=parse(ta.value),note='';if(s.length>10000){s=shuf(s).slice(0,10000);note=' (10 000 max : tirées au hasard)'}
+ const l=s.map(x=>[x.title,x.artist]),say=q=>{const f=document.getElementById('fm');if(f)f.textContent=q};
+ if(host){lists[me.id]=s;st.players.find(p=>p.id===me.id).n=s.length;pub()}
+ else{say('Envoi en cours…');const k=500,n=Math.max(1,Math.ceil(l.length/k));for(let i=0;i<n;i++){send({t:'songs',id:me.id,i,n,l:l.slice(i*k,(i+1)*k)});await new Promise(r=>setTimeout(r,100))}}
+ say('Liste envoyée : '+s.length+' chansons'+note)}
+
+const LD=['On fouille dans les vinyles de ton papi','On regarde dans les CD de ta grande soeur','On dépoussière les cassettes de ta tante','On scrolle dans tes playlists honteuses','On catalogue les 33 tours de ton daron','On rembobine les walkmans'];let ldT=null,ldQ=[];
+const pick=()=>{if(!ldQ.length)ldQ=shuf(LD);return ldQ.pop()+'…'};
+function loading(){$(`<div class="load"><img class="spin" src="assets/disque-bleu.png" alt="" width="120" height="120" style="display:block;margin:0 auto 22px"><img class="logo" src="assets/logo.png" alt="Piki Musik" width="280"><div class="big" style="font-size:clamp(2.2rem,8vw,4rem);margin-top:14px">Chargement</div><p id="ld">${pick()}</p></div>`);clearInterval(ldT);ldT=setInterval(()=>{const e=document.getElementById('ld');if(e)e.textContent=pick();else clearInterval(ldT)},1000)}
+function begin(){likes={};const pool=new Map(),m=Math.min(...st.players.map(p=>(lists[p.id]||[]).length));
+ st.players.forEach(p=>(lists[p.id]||[]).forEach(s=>{if(!pool.has(s.key))pool.set(s.key,{...s,owners:new Set(),pick:false});pool.get(s.key).owners.add(p.id)}));
+ st.players.forEach(p=>shuf(lists[p.id]||[]).slice(0,m).forEach(s=>{pool.get(s.key).pick=true}));
+ const all=shuf([...pool.values()].filter(x=>x.pick));G={songs:all.slice(0,Math.min(st.rounds,all.length)),i:0,scores:Object.fromEntries(st.players.map(p=>[p.id,0]))};
+ nextLoad()}
+function nextLoad(){st.phase='loading';pub();next()}
+async function next(){const s=G.songs[G.i],t0=Date.now();votes={};vt={};let url=null;
+ for(const q of [`artist:"${s.artist}" track:"${s.title}"`,s.title+' '+s.artist]){if(url)break;try{url=(await(await fetch('/api/preview?q='+encodeURIComponent(q))).json()).url}catch(e){}}
+ const w=3000-(Date.now()-t0);if(w>0)await new Promise(r=>setTimeout(r,w));
+ st.phase='round';st.r={n:G.i,total:G.songs.length,title:s.title,artist:s.artist,preview:url,solo:s.owners.size===1,voted:[],intro:5,left:st.timer};pub();
+ clearInterval(tick);tick=setInterval(()=>{const r=st.r;if(!r)return;if(r.intro>0)r.intro--;else if(--r.left<=0)return reveal();send({t:'st',s:st});upd()},1000)}
+function draw(){const r=st.r,n=st.players.length,sent=myR===r.n;if(selR!==r.n){mySel=[];selR=r.n;tDraw=Date.now()}
+ $(`<div class="game"><div><div class="song"><div class="cover"><img src="assets/disque-bleu.png" alt="" style="width:100%;display:block"></div>
+ <div class="big">${esc(r.title)}</div><p>${esc(r.artist)}</p>${r.preview?'':'<p class="small">Pas d’extrait trouvé pour cette chanson</p>'}
+ <button class="heart${likedR.has(r.n)?' on':''}" aria-pressed="${likedR.has(r.n)}" aria-label="J’aime cette chanson" onclick="like(${r.n},this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button>
+ <button class="play" onclick="togg()" aria-label="Lecture / pause"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M7 4l14 8-14 8z" fill="#fffbeb"/></svg></button></div>
+ <img class="logo" src="assets/logo-2-bleu.png" alt="Piki Musik" width="130" style="margin-top:16px"></div>
+ <div><p class="center" style="${HEAD}">Manche ${r.n+1}/${r.total}</p><h1 class="center" style="margin-top:10px">De qui provient<br>ce titre ?</h1>
+ ${st.hard?'':`<p class="hint">${r.solo?'Un seul DJ adore cette chanson':'C’est un hit, plusieurs joueurs ont liké ce banger'}</p>`}
+ <div class="row" style="justify-content:space-between"><span class="lbl" style="margin:0" id="vc"></span><span class="timer" id="tm"></span></div>
+ ${sent?'<div class="card center"><b>Vote envoyé ✓</b><p>En attente des autres joueurs…</p></div>':`<div class="tiles ${n>4?'many':''}">${st.players.map(p=>`<button class="tile${mySel.includes(p.id)?' sel':''}" aria-pressed="${mySel.includes(p.id)}" data-i="${p.id}" onclick="tg(this)"><span class="ic">♫</span>${esc(p.name)}</button>`).join('')}</div><button class="btn b" style="width:100%" onclick="submit()">Valider mon vote</button>`}</div></div>`);
+ upd();if(audioR!==r.n){audioR=r.n;if(r.preview){audio=new Audio(r.preview);audio.loop=true;audio.play().catch(()=>{})}}}
+function upd(){const r=st.r;if(!r||!document.getElementById('tm'))return;tm.textContent=r.intro>0?'Écoute… '+r.intro+'s':fmt(r.left);vc.textContent=r.voted.length+'/'+st.players.length+' ont voté'}
+function setLike(id,n,on){const s=likes[id]=likes[id]||new Set();on?s.add(n):s.delete(n)}
+function like(n,b){const on=!likedR.has(n);on?likedR.add(n):likedR.delete(n);b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);
+ if(host)setLike(me.id,n,on);else send({t:'like',id:me.id,n,on})}
+function togg(){if(audio)audio.paused?audio.play():audio.pause()}
+function tg(b){const solo=st&&st.r&&st.r.solo&&!st.hard,id=b.dataset.i,on=!mySel.includes(id);mySel=solo?(on?[id]:[]):on?[...mySel,id]:mySel.filter(x=>x!==id);document.querySelectorAll('.tile').forEach(x=>{const s=mySel.includes(x.dataset.i);x.classList.toggle('sel',s);x.setAttribute('aria-pressed',s)})}
+function submit(){const picks=mySel.filter(id=>st.players.some(p=>p.id===id)),ms=Date.now()-tDraw;myR=st.r.n;
+ if(host)onMsg({t:'vote',id:me.id,r:st.r.n,picks,ms});else send({t:'vote',id:me.id,r:st.r.n,picks,ms});if(st.phase==='round')draw()}
+function reveal(){clearInterval(tick);const s=G.songs[G.i],ow=[...s.owners];
+ const rows=st.players.map(p=>{const v=votes[p.id];if(!v)return{id:p.id,pts:0,none:1};const good=v.filter(x=>s.owners.has(x)).length,bad=v.length-good,miss=ow.length-good,err=(ow.length===1&&!st.hard)?(good?0:1):bad+miss,raw=2*good-err,fast=raw>0&&vt[p.id]<2000,pts=Math.max(0,raw)+(fast?1:0);G.scores[p.id]+=pts;return{id:p.id,pts,v,err,raw,fast}});
+ st.phase='reveal';st.r=null;st.rv={n:G.i,total:G.songs.length,title:s.title,artist:s.artist,owners:ow,rows,last:G.i>=G.songs.length-1};pub()}
+function showReveal(){const v=st.rv,names=a=>a.map(nm).join(', ');
+ $(`<p class="center" style="${HEAD}">Manche ${v.n+1}/${v.total}</p>
+ <div class="card center"><div class="big" style="font-size:2rem;text-shadow:none">${esc(v.title)}</div><p style="margin:0 0 4px">${esc(v.artist)}</p><button class="heart${likedR.has(v.n)?' on':''}" aria-pressed="${likedR.has(v.n)}" aria-label="J’aime cette chanson" onclick="like(${v.n},this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button><br><span class="lbl">${v.owners.length===1?'Likée par':'Likée par '+v.owners.length+' joueurs'}</span><div style="color:var(--b2);font-weight:400;font-size:1.3rem">${names(v.owners)}</div></div>
+ <div class="card"><h2 style="text-shadow:none">Points de la manche</h2>${v.rows.map(r=>`<div class="rank"><span>${nm(r.id)}<br><span class="small">${r.none?'Pas de vote (temps écoulé)':r.v.length?'Désigné : '+names(r.v)+(r.err?' · '+r.err+' erreur'+(r.err>1?'s':'')+(r.raw<0?' (ramené à 0)':''):'')+(r.fast?' · ⚡ bonus rapidité +1':''):'N’a désigné personne'}</span></span><span class="pts">+${r.pts}</span></div>`).join('')}</div>
+ ${host?`<button class="btn o" style="width:100%" onclick="${v.last?'fin()':'G.i++;nextLoad()'}">${v.last?'Voir le classement':'Manche suivante'}</button>`:'<p class="center small">En attente de l’hôte…</p>'}`)}
+function fin(){st.recap=st.players.map(p=>({n:p.name,l:[...(likes[p.id]||[])].sort((a,b)=>a-b).filter(i=>G.songs[i]).map(i=>[G.songs[i].title,G.songs[i].artist])}));st.phase='final';st.fin=st.players.map(p=>({n:p.name,s:G.scores[p.id]})).sort((a,b)=>b.s-a.s);pub()}
+function final(){const o=st.fin,mx=o[0].s,mn=o[o.length-1].s,cap=(x,i)=>x.s===mx?'We are the champions':x.s===mn?'Oops I did it again 😓':i===1?'Dancing Queen baby 🕺':i===o.length-2?'Hallelujah 🙏':MID[Math.min(Math.max(i-2,0),MID.length-1)];
+ $(`<h1 class="center">Classement</h1><div class="card">${o.map((x,i)=>`<div class="rank"><span><b>${i+1}.</b> ${esc(x.n)}<br><span class="small">${cap(x,i)}</span></span><span class="pts">${x.s} pt${x.s>1?'s':''}</span></div>`).join('')}</div>
+ <div class="card recap"><h2 style="text-shadow:none">Chansons likées</h2>${(st.recap||[]).map(p=>`<p class="lbl" style="margin:12px 0 4px">${esc(p.n)}</p>${p.l.length?`<ul class="small">${p.l.map(([a,b])=>`<li>${esc(a)}${b?' – '+esc(b):''}</li>`).join('')}</ul>`:'<p class="small" style="margin:0">Aucun like</p>'}`).join('')}
+ <button class="btn y" style="margin-top:14px;width:100%" onclick="dl()">Télécharger le récap (Word)</button></div>
+ <p class="small center">Les listes sont effacées à la fin de la partie.</p>${host?'<button class="btn o" style="width:100%" onclick="again()">Nouvelle partie dans le même lobby</button>':'<button class="btn o" style="width:100%" onclick="rematch()">Relancer une partie (je deviens l’hôte)</button><p class="center small">Les autres joueurs te suivront automatiquement.</p>'}`)}
+function rematch(){const oc=ch,c=mk();stopAudio();clearInterval(tick);host=false;st=null;lists={};buf={};votes={};draft='';myR=-1;seq=0;lastQ=0;mySel=[];selR=-1;likes={};likedR=new Set();vt={};loading();
+ connect(c,true,()=>{oc.send({type:'broadcast',event:'m',payload:{t:'nl',code:c,by:me.id}});setTimeout(()=>sb.removeChannel(oc),1500)})}
+const xe=s=>String(s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));
+function docxZip(rec){const P=(x,o={})=>`<w:p><w:pPr>${o.sp?`<w:spacing w:before="${o.sp}" w:after="60"/>`:''}</w:pPr><w:r><w:rPr>${o.b?'<w:b/>':''}${o.c?`<w:color w:val="${o.c}"/>`:''}<w:sz w:val="${o.sz||22}"/></w:rPr><w:t xml:space="preserve">${xe(x)}</w:t></w:r></w:p>`;
+ let b=P('Piki Musik – Récap des chansons likées',{b:1,sz:40,c:'072B8C'})+P(new Date().toLocaleDateString('fr-FR'),{sz:20});
+ rec.forEach(p=>{b+=P(p.n,{b:1,sz:30,c:'FF4400',sp:300});if(!p.l.length)b+=P('Aucun like');else p.l.forEach(([a,r])=>{b+=P('• '+a+(r?' – '+r:''))})});
+ const H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',z=new JSZip();
+ z.file('[Content_Types].xml',H+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+ z.file('_rels/.rels',H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+ z.file('word/document.xml',H+'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+b+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>');
+ return z}
+function docHtml(rec){return '﻿<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>Piki Musik</title></head><body><h1>Piki Musik – Récap des chansons likées</h1><p>'+xe(new Date().toLocaleDateString('fr-FR'))+'</p>'+rec.map(p=>'<h2>'+xe(p.n)+'</h2>'+(p.l.length?'<ul>'+p.l.map(([a,r])=>'<li>'+xe(a)+(r?' – '+xe(r):'')+'</li>').join('')+'</ul>':'<p>Aucun like</p>')).join('')+'</body></html>'}
+async function dl(){const rec=st.recap||[];let blob,name='piki-musik-recap';
+ try{blob=await docxZip(rec).generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});name+='.docx'}
+ catch(e){blob=new Blob([docHtml(rec)],{type:'application/msword'});name+='.doc'}
+ const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
+function again(){lists={};likes={};likedR=new Set();st.players.forEach(p=>p.n=0);st.phase='lobby';st.fin=st.rv=st.r=st.recap=null;pub()}
+home();
+</script>
+</body>
+</html>
