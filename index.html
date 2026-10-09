@@ -78,7 +78,17 @@ const mk=()=>Array.from({length:5},()=>'ABCDEFGHJKMNPQRSTUVWXYZ'[Math.random()*2
 const MID=["Presque un sniper","Oreille correcte","Joue au hasard","Perdu dans la playlist"];
 const HEAD="margin:0;font:800 1.2rem 'League Spartan',sans-serif;color:var(--b2);text-transform:uppercase";
 let me={id:Math.random().toString(36).slice(2,9),name:''},host=false,ch=null,sb=null,st=null,lists={},buf={},votes={},G=null,tick=null,sT=null,draft='',myR=-1,audio=null,audioR=-1,mySel=[],selR=-1,seq=0,lastQ=0,likes={},likedR=new Set(),tDraw=0,vt={};
-function parse(raw){const seen=new Set(),out=[];raw.split(/\r?\n/).forEach(l=>{l=l.trim().replace(/^"|"$/g,'');if(!l)return;const m=l.split(/\s+[-–—]\s+|\s*;\s*|\t/),t=m[0].trim(),a=(m[1]||'').trim(),k=norm(t+'|'+a);if(t&&!seen.has(k)){seen.add(k);out.push({title:t,artist:a,key:k})}});return out}
+const _n=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/['’`]/g,'').replace(/&/g,' and ').replace(/[^\p{L}\p{N} ]/gu,' ').replace(/\s+/g,' ').trim();
+const FEAT=/\s*[\(\[]\s*(?:feat|ft|featuring|with)\b[^\)\]]*[\)\]]|\s*[\(\[][^\)\]]*remaster[^\)\]]*[\)\]]|\s+(?:feat|ft|featuring)\b\.?\s[^\(\[]*/gi;
+const KEEP=/\b(?:remix|mix|live|acoustic|instrumental|demo|cover|bootleg|vip|rework|flip)\b/i;
+const cleanT=s=>_n(String(s).replace(FEAT,' '));
+const firstA=s=>_n(String(s).replace(FEAT,' ').split(/\s*(?:;|,|&|\+)\s*|\s+(?:and|et|x|feat\.?|ft\.?|featuring|with)\s+/i)[0]);
+const songOf=(t,a)=>({title:t,artist:a,key:cleanT(t)+'|'+firstA(a),alt:a?cleanT(a)+'|'+firstA(t):null});
+function parse(raw){const seen=new Set(),out=[];raw.split(/\r?\n/).forEach(l=>{l=l.trim().replace(/^"|"$/g,'');if(!l)return;
+ let g=l.split(/\s+[-–—_|]\s+|\t/).map(x=>x.trim()).filter(Boolean);if(g.length<2)g=l.split(/\s*;\s*/).map(x=>x.trim()).filter(Boolean);
+ g=g.filter((x,i)=>i===0||!(/remaster/i.test(x)&&x.length<=45));if(!g.length)return;
+ const t=g.length>2?[g[0],...g.slice(1,-1).filter(x=>KEEP.test(x))].join(' - '):g[0],a=g.length>1?g[g.length-1]:'',s=songOf(t,a);
+ if(!s.key.replace('|','')||seen.has(s.key)||(s.alt&&seen.has(s.alt)))return;seen.add(s.key);if(s.alt)seen.add(s.alt);out.push(s)});return out}
 function fromCSV(t){t=t.replace(/^\uFEFF/,'');const l=t.split(/\r?\n/)[0]||'',d=(l.match(/;/g)||[]).length>(l.match(/,/g)||[]).length?';':',',rows=[];let r=[],c='',q=false;
  for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==d){r.push(c);c=''}else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;r.push(c);rows.push(r);r=[];c=''}else c+=ch}
  if(c||r.length){r.push(c);rows.push(r)}
@@ -129,7 +139,7 @@ function onMsg(m){
    if(p.some(x=>norm(x.name)===norm(m.name)))return send({t:'no',id:m.id,why:'Ce pseudo est déjà pris dans ce lobby.'});
    p.push({id:m.id,name:m.name,n:0});pub()}
   else if(m.t==='songs'){if(m.i===0)buf[m.id]=[];const b=buf[m.id]=buf[m.id]||[];b[m.i]=m.l;
-   if(b.filter(Boolean).length===m.n){lists[m.id]=[].concat(...b).map(([t,a])=>({title:t,artist:a,key:norm(t+'|'+a)}));delete buf[m.id];const p=st.players.find(x=>x.id===m.id);if(p){p.n=lists[m.id].length;pub()}}}
+   if(b.filter(Boolean).length===m.n){lists[m.id]=[].concat(...b).map(([t,a])=>songOf(t,a));delete buf[m.id];const p=st.players.find(x=>x.id===m.id);if(p){p.n=lists[m.id].length;pub()}}}
   else if(m.t==='like'){if(st.players.some(x=>x.id===m.id)&&Number.isInteger(m.n))setLike(m.id,m.n,!!m.on)}
   else if(m.t==='vote'&&st.phase==='round'&&m.r===st.r.n){votes[m.id]=m.picks;vt[m.id]=Number.isFinite(+m.ms)?+m.ms:99999;st.r.voted=Object.keys(votes);
    if(st.players.every(p=>votes[p.id]))reveal();else{send({t:'st',s:st});upd()}}
@@ -161,9 +171,9 @@ async function sendList(){let s=parse(ta.value),note='';if(s.length>10000){s=shu
 const LD=['On fouille dans les vinyles de ton papi','On regarde dans les CD de ta grande soeur','On dépoussière les cassettes de ta tante','On scrolle dans tes playlists honteuses','On catalogue les 33 tours de ton daron','On rembobine les walkmans'];let ldT=null,ldQ=[];
 const pick=()=>{if(!ldQ.length)ldQ=shuf(LD);return ldQ.pop()+'…'};
 function loading(){$(`<div class="load"><img class="spin" src="assets/disque-bleu.png" alt="" width="120" height="120" style="display:block;margin:0 auto 22px"><img class="logo" src="assets/logo.png" alt="Piki Musik" width="280"><div class="big" style="font-size:clamp(2.2rem,8vw,4rem);margin-top:14px">Chargement</div><p id="ld">${pick()}</p></div>`);clearInterval(ldT);ldT=setInterval(()=>{const e=document.getElementById('ld');if(e)e.textContent=pick();else clearInterval(ldT)},1000)}
-function begin(){likes={};const pool=new Map();
- st.players.forEach(p=>(lists[p.id]||[]).forEach(s=>{if(!pool.has(s.key))pool.set(s.key,{...s,owners:new Set()});pool.get(s.key).owners.add(p.id)}));
- const all=[...pool.values()],shared=all.filter(x=>x.owners.size>1),
+function begin(){likes={};const idx=new Map(),all=[];
+ st.players.forEach(p=>(lists[p.id]||[]).forEach(s=>{let e=idx.get(s.key)||(s.alt&&idx.get(s.alt));if(!e){e={title:s.title,artist:s.artist,key:s.key,owners:new Set()};all.push(e)}e.owners.add(p.id);[s.key,s.alt].forEach(k=>{if(k&&!idx.has(k))idx.set(k,e)})}));
+ const shared=all.filter(x=>x.owners.size>1),
   solo=Object.fromEntries(st.players.map(p=>[p.id,shuf(all.filter(x=>x.owners.size===1&&x.owners.has(p.id)))])),
   small=st.players.reduce((a,p)=>(lists[p.id]||[]).length<(lists[a.id]||[]).length?p:a),k=solo[small.id].length,
   chosen=[...shared,...st.players.flatMap(p=>solo[p.id].slice(0,k))];
