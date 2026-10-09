@@ -142,7 +142,7 @@ function render(){if(!st)return;if(st.phase!=='round')stopAudio();
  ({lobby,loading,round:draw,reveal:showReveal,final}[st.phase])()}
 function lobby(){const ps=st.players,ok=ps.length>=2&&ps.every(p=>p.n>0);
  $(`<div class="center"><h1>Lobby</h1><p class="small">Partage ce code à tes amis</p><div class="code" aria-label="Code du lobby">${st.code}</div></div>
- <div class="card"><span class="lbl">Joueurs (${ps.length}/6)</span>${ps.map(p=>`<div class="rank"><span>${esc(p.name)}${p.id===st.hostId?' 👑':''}</span><span class="small">${p.n?'✓ '+p.n+' chansons':'liste en attente'}</span></div>`).join('')}${ps.every(p=>p.n)?`<p class="small" style="margin:10px 0 0">Chacun jouera avec le même nombre de chansons : ${Math.min(...ps.map(p=>p.n))} par joueur.</p>`:''}</div>
+ <div class="card"><span class="lbl">Joueurs (${ps.length}/6)</span>${ps.map(p=>`<div class="rank"><span>${esc(p.name)}${p.id===st.hostId?' 👑':''}</span><span class="small">${p.n?'✓ '+p.n+' chansons':'liste en attente'}</span></div>`).join('')}${ps.every(p=>p.n)?`<p class="small" style="margin:10px 0 0">Toutes les chansons likées par plusieurs joueurs seront jouées, plus le même nombre de chansons uniques pour chacun.</p>`:''}</div>
  <div class="card"><span class="lbl">Tes chansons (Titre - Artiste, une par ligne)</span><textarea id="ta" aria-label="Liste de chansons" placeholder="Get Lucky - Daft Punk">${esc(draft)}</textarea><p class="small" id="cnt"></p>
  <div class="row"><button class="btn y" style="padding:12px;flex:none;min-width:0" onclick="fl.click()">Importer un fichier (.csv, .docx)</button><button class="btn o" id="sl" style="padding:12px;flex:none;min-width:0" onclick="sendList()" disabled>Envoyer ma liste</button><input type="file" id="fl" accept=".csv,.docx" hidden onchange="imp(this.files[0])"></div><p class="small">Pas de fichier ? Exporte tes titres en CSV avec <a href="https://www.tunemymusic.com/" target="_blank" rel="noopener noreferrer">TuneMyMusic</a>.</p><p class="small" id="fm" role="status"></p></div>
  ${host?`<div class="card"><label class="lbl" for="r">Manches : <span id="rv">${st.rounds}</span></label><input id="r" type="range" min="3" max="20" value="${st.rounds}" oninput="rv.textContent=this.value;setO('rounds',+this.value)">
@@ -161,10 +161,13 @@ async function sendList(){let s=parse(ta.value),note='';if(s.length>10000){s=shu
 const LD=['On fouille dans les vinyles de ton papi','On regarde dans les CD de ta grande soeur','On dépoussière les cassettes de ta tante','On scrolle dans tes playlists honteuses','On catalogue les 33 tours de ton daron','On rembobine les walkmans'];let ldT=null,ldQ=[];
 const pick=()=>{if(!ldQ.length)ldQ=shuf(LD);return ldQ.pop()+'…'};
 function loading(){$(`<div class="load"><img class="spin" src="assets/disque-bleu.png" alt="" width="120" height="120" style="display:block;margin:0 auto 22px"><img class="logo" src="assets/logo.png" alt="Piki Musik" width="280"><div class="big" style="font-size:clamp(2.2rem,8vw,4rem);margin-top:14px">Chargement</div><p id="ld">${pick()}</p></div>`);clearInterval(ldT);ldT=setInterval(()=>{const e=document.getElementById('ld');if(e)e.textContent=pick();else clearInterval(ldT)},1000)}
-function begin(){likes={};const pool=new Map(),m=Math.min(...st.players.map(p=>(lists[p.id]||[]).length));
- st.players.forEach(p=>(lists[p.id]||[]).forEach(s=>{if(!pool.has(s.key))pool.set(s.key,{...s,owners:new Set(),pick:false});pool.get(s.key).owners.add(p.id)}));
- st.players.forEach(p=>shuf(lists[p.id]||[]).slice(0,m).forEach(s=>{pool.get(s.key).pick=true}));
- const all=shuf([...pool.values()].filter(x=>x.pick));G={songs:all.slice(0,Math.min(st.rounds,all.length)),i:0,scores:Object.fromEntries(st.players.map(p=>[p.id,0]))};
+function begin(){likes={};const pool=new Map();
+ st.players.forEach(p=>(lists[p.id]||[]).forEach(s=>{if(!pool.has(s.key))pool.set(s.key,{...s,owners:new Set()});pool.get(s.key).owners.add(p.id)}));
+ const all=[...pool.values()],shared=all.filter(x=>x.owners.size>1),
+  solo=Object.fromEntries(st.players.map(p=>[p.id,shuf(all.filter(x=>x.owners.size===1&&x.owners.has(p.id)))])),
+  small=st.players.reduce((a,p)=>(lists[p.id]||[]).length<(lists[a.id]||[]).length?p:a),k=solo[small.id].length,
+  chosen=[...shared,...st.players.flatMap(p=>solo[p.id].slice(0,k))];
+ G={songs:shuf(chosen).slice(0,Math.min(st.rounds,chosen.length)),i:0,scores:Object.fromEntries(st.players.map(p=>[p.id,0]))};
  nextLoad()}
 function nextLoad(){st.phase='loading';pub();next()}
 async function next(){const s=G.songs[G.i],t0=Date.now();votes={};vt={};let url=null;
